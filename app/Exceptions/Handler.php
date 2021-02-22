@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,7 +36,34 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+
+
         });
     }
+
+    public function render($request, Throwable $e)
+    {
+        if($e instanceOf ModelNotFoundException) {
+            return response()->json([
+                'status' => false,
+                'errors' => [
+                    [
+                        'code' => 404,
+                        'message' => 'No se encuentra el recurso solicitado.'
+                    ]
+                ]
+            ], 404);
+        }
+        else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Desconocido',
+                'error' => $e
+            ], 500);
+        }
+
+        //return parent::render($request, $e);
+    }
+
+
 }
