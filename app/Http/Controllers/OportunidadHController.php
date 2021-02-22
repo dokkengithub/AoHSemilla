@@ -23,6 +23,32 @@ class OportunidadHController extends Controller
     }
 
     /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        $validator = Validator::make($data, [
+            'Nombre_Oportunidad' => 'required',
+            'Fecha_Inicio' => 'required'
+        ], [
+            "Nombre_Oportunidad.required" => "El campo es requerido.",
+            "Fecha_Inicio.required" => "El campo es requerido."
+        ]);
+
+        if( $validator->fails() ) {
+            return response()->json([
+                    'status'    =>  false,
+                    'errors'    =>  $validator->errors(),
+                ],
+                422  //HTTP 422 Unprocessable Entity
+            );
+        }
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -46,40 +72,23 @@ class OportunidadHController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $validator = Validator::make($data, [
-            'Nombre_Oportunidad' => 'required',
-            'Fecha_Inicio' => 'required'
-        ], [
-            "Nombre_Oportunidad.required" => "El campo es requerido.",
-            "Fecha_Inicio.required" => "El campo es requerido."
-        ]);
+        $this->validator($data);
 
-        if( ! $validator->fails() ) {
-            try {
-                DB::beginTransaction();
-                $data = $this->modelClass::create($data);
-                DB::commit();
+        try {
+            DB::beginTransaction();
+            $data = $this->modelClass::create($data);
+            DB::commit();
 
-                return Response::json([
-                        'status' => true,
-                        'data' =>  $data,
-                        'message' => 'El recurso se ha creado.'
-                    ],
-                    201 //HTTP 201 Object created
-                );
-            } catch (QueryException $e) {
-                DB::rollback();
-                throw $e;
-            }
-        }
-        else
-        {
-            return response()->json([
-                    'status'    =>  false,
-                    'errors'    =>  $validator->errors(),
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
                 ],
-                422  //HTTP 422 Unprocessable Entity
+                201 //HTTP 201 Object created
             );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
         }
     }
 
@@ -109,43 +118,25 @@ class OportunidadHController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
+        $this->validator($data);
 
-        $validator = Validator::make($data, [
-            'Nombre_Oportunidad' => 'required',
-            'Fecha_Inicio' => 'required'
-        ], [
-            "Nombre_Oportunidad.required" => "El campo es requerido.",
-            "Fecha_Inicio.required" => "El campo es requerido."
-        ]);
+        try {
+            DB::beginTransaction();
+            $data = $this->modelClass::findOrFail($id);
+            $data->update($request->toArray());
 
-        if( ! $validator->fails() ) {
-            try {
-                DB::beginTransaction();
-                $data = $this->modelClass::findOrFail($id);
-                $data->update($request->toArray());
+            DB::commit();
 
-                DB::commit();
-
-                return Response::json([
-                        'status' => true,
-                        'data' =>  $data,
-                        'message' => 'El recurso se actualizó.'
-                    ],
-                    201 //HTTP 201 Object created
-                );
-            } catch (QueryException $e) {
-                DB::rollback();
-                throw $e;
-            }
-        }
-        else
-        {
-            return response()->json([
-                    'status'    =>  false,
-                    'errors'    =>  $validator->errors(),
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
                 ],
-                422  //HTTP 422 Unprocessable Entity
+                201 //HTTP 201 Object created
             );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
         }
     }
 
