@@ -7,5 +7,8 @@ use Illuminate\Http\Request;
 
 class ResetPasswordController extends Controller
 {
-    //
+   public function resetPassword(Request $request)
+   {
+
+   }
 }

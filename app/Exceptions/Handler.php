@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
@@ -55,14 +56,26 @@ class Handler extends ExceptionHandler
             ], 404);
         }
         else{
-            return response()->json([
-                'status' => false,
-                'message' => 'Desconocido',
-                'error' => $e
-            ], 500);
+            if($e instanceOf AuthenticationException) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => [
+                        [
+                            'code' => 401,
+                            'message' => 'Credenciales inválidas',
+                        ]
+                    ]
+                ], 401);
+            }
         }
 
-        //return parent::render($request, $e);
+        /*return response()->json([
+            'status' => false,
+            'message' => 'Desconocido',
+            'error' => $e
+        ], 500);*/
+
+        return parent::render($request, $e);
     }
 
 

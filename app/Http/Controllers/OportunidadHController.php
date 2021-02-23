@@ -55,11 +55,11 @@ class OportunidadHController extends Controller
      */
     public function index()
     {
-        $data = $this->modelClass::all();
+        $obj = $this->modelClass::all();
 
         return Response::json([
             'status' => true,
-            'data' => $data
+            'data' => $obj
         ], 200);  //HTTP 201 Ok
     }
 
@@ -76,12 +76,12 @@ class OportunidadHController extends Controller
 
         try {
             DB::beginTransaction();
-            $data = $this->modelClass::create($data);
+            $obj = $this->modelClass::create($data);
             DB::commit();
 
             return Response::json([
                     'status' => true,
-                    'data' =>  $data,
+                    'data' =>  $obj,
                     'message' => 'El recurso se ha creado.'
                 ],
                 201 //HTTP 201 Object created
@@ -100,11 +100,11 @@ class OportunidadHController extends Controller
      */
     public function show($id)
     {
-        $data = $this->modelClass::findOrFail($id);
+        $obj = $this->modelClass::findOrFail($id);
 
         return Response::json([
             'status' => true,
-            'data' => $data
+            'data' => $obj
         ], 200);
     }
 
@@ -122,9 +122,8 @@ class OportunidadHController extends Controller
 
         try {
             DB::beginTransaction();
-            $data = $this->modelClass::findOrFail($id);
-            $data->update($request->toArray());
-
+            $obj = $this->modelClass::findOrFail($id);
+            $obj->update($data);
             DB::commit();
 
             return Response::json([
@@ -151,16 +150,16 @@ class OportunidadHController extends Controller
         try{
             DB::beginTransaction();
 
-            $data = $this->modelClass::findOrFail($id);
+            $obj = $this->modelClass::findOrFail($id);
             //$obj->activo = false;
             // $obj->save();  //$data->update(['activo' => false]);
-            $data->delete();
+            $obj->delete();
 
             DB::commit();
 
             return Response::json([
                     'status' => true,
-                    'data' =>  $data,
+                    'data' =>  $obj,
                     'message' => 'El recurso se ha eliminado.'
                 ],
                 200
