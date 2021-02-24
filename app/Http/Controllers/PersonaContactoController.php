@@ -66,9 +66,9 @@ class PersonaContactoController extends ApiPersonaContactoController
      * @param \App\Models\PersonaContacto $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, PersonaContacto $oportunidadpc)
+    public function show(Request $request, $oportunidadpc)
     {
-        $data = parent::show($request, $oportunidadpc);
+        $data = PersonaContacto::findOrFail($oportunidadpc);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class PersonaContactoController extends ApiPersonaContactoController
      * @param \App\Models\PersonaContacto $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(PersonaContactoUpdateRequest $request, PersonaContacto $oportunidadpc)
+    public function update(PersonaContactoUpdateRequest $request, $oportunidadpc)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidadpc);
+            $data = PersonaContacto::findOrFail($oportunidadpc);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

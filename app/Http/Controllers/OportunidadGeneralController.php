@@ -66,9 +66,9 @@ class OportunidadGeneralController extends ApiOportunidadGeneralController
      * @param \App\Models\OportunidadGeneral $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, OportunidadGeneral $oportunidadg)
+    public function show(Request $request, $oportunidadg)
     {
-        $data = parent::show($request, $oportunidadg);
+        $data = OportunidadGeneral::findOrFail($oportunidadg);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class OportunidadGeneralController extends ApiOportunidadGeneralController
      * @param \App\Models\OportunidadGeneral $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(OportunidadGeneralUpdateRequest $request, OportunidadGeneral $oportunidadg)
+    public function update(OportunidadGeneralUpdateRequest $request, $oportunidadg)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidadg);
+            $data = OportunidadGeneral::findOrFail($oportunidadg);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

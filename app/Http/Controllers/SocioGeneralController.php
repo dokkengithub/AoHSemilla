@@ -66,9 +66,9 @@ class SocioGeneralController extends ApiSocioGeneralController
      * @param \App\Models\SocioGeneral $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, SocioGeneral $sociog)
+    public function show(Request $request, $sociog)
     {
-        $data = parent::show($request, $sociog);
+        $data = SocioGeneral::findOrFail($sociog);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class SocioGeneralController extends ApiSocioGeneralController
      * @param \App\Models\SocioGeneral $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(SocioGeneralUpdateRequest $request, SocioGeneral $sociog)
+    public function update(SocioGeneralUpdateRequest $request, $sociog)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $sociog);
+            $data = SocioGeneral::findOrFail($sociog);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

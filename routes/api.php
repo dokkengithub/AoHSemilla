@@ -62,13 +62,22 @@ Route::group([
 ], function () {
 
     Route::apiResource("oportunidada", \App\Http\Controllers\OportunidadActividadController::class);
+
     Route::apiResource("oportunidadan", \App\Http\Controllers\OportunidadAnexoController::class);
+
     Route::apiResource("oportunidadc", \App\Http\Controllers\OportunidadCompetidorController::class);
+
     Route::apiResource("oportunidade", \App\Http\Controllers\OportunidadEtapaController::class);
+
     Route::apiResource("oportunidadg", \App\Http\Controllers\OportunidadGeneralController::class);
+
+    Route::get("oportunidadh/search", [ \App\Http\Controllers\OportunidadHeaderController::class, 'search' ]);
     Route::apiResource("oportunidadh", \App\Http\Controllers\OportunidadHeaderController::class);
+
     Route::apiResource("oportunidadp", \App\Http\Controllers\OportunidadPotencialController::class);
+
     Route::apiResource("oportunidads", \App\Http\Controllers\OportunidadSocioNegocioController::class);
+
     Route::apiResource("personacontacto", \App\Http\Controllers\PersonaContactoController::class);
 
     Route::apiResource("sociod", \App\Http\Controllers\SocioDireccionController::class);

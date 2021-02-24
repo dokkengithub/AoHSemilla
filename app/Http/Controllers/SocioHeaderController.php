@@ -66,9 +66,9 @@ class SocioHeaderController extends ApiSocioHeaderController
      * @param \App\Models\SocioHeader $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, SocioHeader $socioh)
+    public function show(Request $request, $socioh)
     {
-        $data = parent::show($request, $socioh);
+        $data = SocioHeader::findOrFail($socioh);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class SocioHeaderController extends ApiSocioHeaderController
      * @param \App\Models\SocioHeader $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(SocioHeaderUpdateRequest $request, SocioHeader $socioh)
+    public function update(SocioHeaderUpdateRequest $request, $socioh)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $socioh);
+            $data = SocioHeader::findOrFail($socioh);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

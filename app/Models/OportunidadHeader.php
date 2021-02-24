@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\ColumnTables;
 use Database\Factories\OportunidadEtapaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class OportunidadHeader extends Model
 {
-    use HasFactory;
+    use HasFactory, ColumnTables;
 
     /**
      * The attributes that aren't mass assignable.
@@ -33,9 +35,10 @@ class OportunidadHeader extends Model
         'codigo_persona_contacto' => 'integer',
         'territorio_socio_negocio' => 'integer',
         'codigo_empleado' => 'integer',
+        'created_at' => 'datetime:d-m-Y H:i',
+        'updated_at' => 'datetime:d-m-Y H:i'
     ];
 
-    protected $dateFormat = "d-m-Y H:i:s.v";
 
     public function oportunidadas(){
         return $this->hasMany(OportunidadActividad::class);
@@ -63,4 +66,6 @@ class OportunidadHeader extends Model
     public function oportunidadp(){
         return $this->hasOne(OportunidadPotencial::class);
     }
+
+
 }

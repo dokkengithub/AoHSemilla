@@ -66,9 +66,9 @@ class SocioPersonaContactoController extends ApiSocioPersonaContactoController
      * @param \App\Models\SocioPersonaContacto $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, SocioPersonaContacto $sociopc)
+    public function show(Request $request, $sociopc)
     {
-        $data = parent::show($request, $sociopc);
+        $data = SocioPersonaContacto::findOrFail($sociopc);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class SocioPersonaContactoController extends ApiSocioPersonaContactoController
      * @param \App\Models\SocioPersonaContacto $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(SocioPersonaContactoUpdateRequest $request, SocioPersonaContacto $sociopc)
+    public function update(SocioPersonaContactoUpdateRequest $request, $sociopc)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $sociopc);
+            $data = SocioPersonaContacto::findOrFail($sociopc);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

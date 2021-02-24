@@ -65,11 +65,11 @@ class OportunidadActividadController extends Api\OportunidadActividadController
      * @param \App\Models\OportunidadActividad $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, OportunidadActividad $oportunidada)
+    public function show(Request $request, $oportunidada)
     {
         //return $oportunidada;
 
-        $data = parent::show($request, $oportunidada);
+        $data = OportunidadActividad::findOrFail($oportunidada);
 
         return Response::json([
             'status' => true,
@@ -83,11 +83,12 @@ class OportunidadActividadController extends Api\OportunidadActividadController
      * @param \App\Models\OportunidadActividad $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(OportunidadActividadUpdateRequest $request, OportunidadActividad $oportunidada)
+    public function update(OportunidadActividadUpdateRequest $request, $oportunidada)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidada);
+            $data = OportunidadActividad::findOrFail($oportunidada);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

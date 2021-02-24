@@ -74,11 +74,9 @@ class OportunidadSocioNegocioController extends ApiOportunidadSocioNegocioContro
      * @param \App\Models\OportunidadSocioNegocio $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, OportunidadSocioNegocio $oportunidads)
+    public function show(Request $request, $oportunidads)
     {
-        //return $oportunidads;
-
-        $data = parent::show($request, $oportunidads);
+        $data = OportunidadSocioNegocio::findOrFail($oportunidads);
 
         return Response::json([
             'status' => true,
@@ -92,11 +90,12 @@ class OportunidadSocioNegocioController extends ApiOportunidadSocioNegocioContro
      * @param \App\Models\OportunidadSocioNegocio $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(OportunidadSocioNegocioUpdateRequest $request, OportunidadSocioNegocio $oportunidads)
+    public function update(OportunidadSocioNegocioUpdateRequest $request, $oportunidads)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidads);
+            $data = OportunidadSocioNegocio::findOrFail($oportunidads);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

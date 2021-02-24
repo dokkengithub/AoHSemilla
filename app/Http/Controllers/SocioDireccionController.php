@@ -66,9 +66,9 @@ class SocioDireccionController extends ApiSocioDireccionController
      * @param \App\Models\SocioDireccion $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, SocioDireccion $sociod)
+    public function show(Request $request, $sociod)
     {
-        $data = parent::show($request, $sociod);
+        $data = SocioDireccion::findOrFail($sociod);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class SocioDireccionController extends ApiSocioDireccionController
      * @param \App\Models\SocioDireccion $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(SocioDireccionUpdateRequest $request, SocioDireccion $sociod)
+    public function update(SocioDireccionUpdateRequest $request, $sociod)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $sociod);
+            $data = SocioDireccion::findOrFail($sociod);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

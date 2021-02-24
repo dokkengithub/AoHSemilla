@@ -10,6 +10,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OportunidadHeaderController extends ApiOportunidadHeaderController
 {
@@ -23,17 +24,69 @@ class OportunidadHeaderController extends ApiOportunidadHeaderController
         //$this->middleware('auth');
     }
 
+    public function search(Request $request) {
+
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+        $columnsSearch = ( $request->has('columns_search') ? $request->columns_search : null );
+        /*
+        $columnsSearch : espera un arreglo con el siguiente formato:
+            [
+                [ "columnType" => "", "columnName" => "", "comparator" => "", "value" => "" ],
+                [ "columnType" => "", "columnName" => "", "comparator" => "", "value" => "" ],
+                ...
+            ]
+        */
+
+        $comparators = ["exacto" => "=", "contenga" => "like", "entre" => "beetween"];
+
+        $paginate = OportunidadHeader::select("*");
+
+        if(is_array($columnsSearch)) {
+            if(count($columnsSearch) > 0){
+
+                $paginate = $paginate->where(function($q) use ($columnsSearch, $comparators) {
+                    foreach($columnsSearch as $column) {
+                        $cname = $column["columnName"];
+                        $c = $comparators[ $column["comparator"] ];
+
+                        if( $c == '=' || $c == 'like'  ) {
+                            $value = ( $c == '=' ? $column["value"]  : "%" . $column["value"] . "%" );
+                            $q->orWhere($cname, $c, $value);
+                        }else{
+                            $range_bw = ( $column["value"] ? Str::of( $column["value"] )->trim()->explode('|')->all() : [' ', ' '] );
+                            $q->orWhereBetween($cname, $range_bw);
+                        }
+                    }
+                });
+            }
+        }
+
+        $paginate = $paginate->orderBy('created_at')
+            ->orderBy('nombre_oportunidad')
+            ->paginate($perPage);
+
+        return Response::json($paginate, 200);
+    }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $list = parent::index($request);
+        $table = new OportunidadHeader();
+        $comparatorsName = [ "contenga", "entre", "exacto" ];
+
+        $columnsTable = $table->getColumnsTable();
+
+        $data = [
+            'comparatorsName' => $comparatorsName,
+            'columnsTable' => $columnsTable,
+        ];
 
         return Response::json([
             'status' => true,
-            'data' => $list
+            'data' => $data
         ], 200);  //HTTP 200 Ok
     }
 
@@ -84,7 +137,7 @@ class OportunidadHeaderController extends ApiOportunidadHeaderController
             'oportunidadgs',
             'oportunidadp',
             'oportunidadss'
-        ])->find($oportunidadh);
+        ])->findOrFail($oportunidadh);
 
         return Response::json([
             'status' => true,
@@ -98,11 +151,12 @@ class OportunidadHeaderController extends ApiOportunidadHeaderController
      * @param \App\Models\OportunidadHeader $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(OportunidadHeaderUpdateRequest $request, OportunidadHeader $oportunidadh)
+    public function update(OportunidadHeaderUpdateRequest $request, $oportunidadh)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidadh);
+            $data = OportunidadHeader::findOrFail($oportunidadh);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

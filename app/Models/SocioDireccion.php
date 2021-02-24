@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\ColumnTables;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SocioDireccion extends Model
 {
-    use HasFactory;
+    use HasFactory, ColumnTables;
 
     /**
      * The attributes that aren't mass assignable.

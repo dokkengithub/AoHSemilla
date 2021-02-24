@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\ColumnTables;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OportunidadCompetidor extends Model
 {
-    use HasFactory;
+    use HasFactory, ColumnTables;
 
     /**
      * The attributes that aren't mass assignable.
@@ -28,8 +29,6 @@ class OportunidadCompetidor extends Model
         'nivelamenaza_id' => 'integer',
         'ganado' => 'boolean',
     ];
-
-    protected $dateFormat = "d-m-Y H:i:s.v";
 
     public function oportunidadHeader()
     {

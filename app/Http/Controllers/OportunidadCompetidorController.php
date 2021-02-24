@@ -66,9 +66,9 @@ class OportunidadCompetidorController extends ApiOportunidadCompetidorController
      * @param \App\Models\OportunidadCompetidor $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, OportunidadCompetidor $oportunidadc)
+    public function show(Request $request, $oportunidadc)
     {
-        $data = parent::show($request, $oportunidadc);
+        $data = OportunidadCompetidor::findOrFail($oportunidadc);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class OportunidadCompetidorController extends ApiOportunidadCompetidorController
      * @param \App\Models\OportunidadCompetidor $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(OportunidadCompetidorUpdateRequest $request, OportunidadCompetidor $oportunidadc)
+    public function update(OportunidadCompetidorUpdateRequest $request, $oportunidadc)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidadc);
+            $data = OportunidadCompetidor::findOrFail($oportunidadc);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

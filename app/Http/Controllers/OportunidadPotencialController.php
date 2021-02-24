@@ -66,9 +66,9 @@ class OportunidadPotencialController extends ApiOportunidadPotencialController
      * @param \App\Models\OportunidadPotencial $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, OportunidadPotencial $oportunidadp)
+    public function show(Request $request, $oportunidadp)
     {
-        $data = parent::show($request, $oportunidadp);
+        $data = OportunidadPotencial::findOrFail($oportunidadp);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class OportunidadPotencialController extends ApiOportunidadPotencialController
      * @param \App\Models\OportunidadPotencial $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(OportunidadPotencialUpdateRequest $request, OportunidadPotencial $oportunidadp)
+    public function update(OportunidadPotencialUpdateRequest $request, $oportunidadp)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidadp);
+            $data = OportunidadPotencial::findOrFail($oportunidadp);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\ColumnTables;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OportunidadAnexo extends Model
 {
-    use HasFactory;
+    use HasFactory, ColumnTables;
 
     /**
      * The attributes that aren't mass assignable.
@@ -26,8 +27,6 @@ class OportunidadAnexo extends Model
         'oportunidad_header_id' => 'integer',
         'tipo_anexo' => 'integer',
     ];
-
-    protected $dateFormat = "d-m-Y H:i:s.v";
 
     public function oportunidadHeader()
     {

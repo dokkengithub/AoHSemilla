@@ -66,9 +66,9 @@ class OportunidadEtapaController extends ApiOportunidadEtapaController
      * @param \App\Models\OportunidadEtapa $obj
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, OportunidadEtapa $oportunidade)
+    public function show(Request $request, $oportunidade)
     {
-        $data = parent::show($request, $oportunidade);
+        $data = OportunidadEtapa::findOrFail($oportunidade);
 
         return Response::json([
             'status' => true,
@@ -82,11 +82,12 @@ class OportunidadEtapaController extends ApiOportunidadEtapaController
      * @param \App\Models\OportunidadEtapa $obj
      * @return \Illuminate\Http\Response
      */
-    public function update(OportunidadEtapaUpdateRequest $request, OportunidadEtapa $oportunidade)
+    public function update(OportunidadEtapaUpdateRequest $request,  $oportunidade)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $oportunidade);
+            $data = OportunidadEtapa::findOrFail($oportunidade);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([

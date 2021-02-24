@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\ColumnTables;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OportunidadGeneral extends Model
 {
-    use HasFactory;
+    use HasFactory, ColumnTables;
 
     /**
      * The attributes that aren't mass assignable.
@@ -25,8 +26,6 @@ class OportunidadGeneral extends Model
         'id' => 'integer',
         'oportunidad_header_id' => 'integer',
     ];
-
-    protected $dateFormat = "d-m-Y H:i:s.v";
 
     public function oportunidadHeader()
     {

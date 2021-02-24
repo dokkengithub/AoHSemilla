@@ -61,12 +61,12 @@ class OportunidadAnexoController extends ApiOportunidadAnexoController
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadAnexo $obj
+     * @param \App\Models\OportunidadAnexo $oportunidadan
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, OportunidadAnexo $obj)
+    public function show(Request $request, $oportunidadan)
     {
-        $data = parent::show($request, $obj);
+        $data = OportunidadAnexo::findOrFail($oportunidadan);
 
         return Response::json([
             'status' => true,
@@ -76,14 +76,15 @@ class OportunidadAnexoController extends ApiOportunidadAnexoController
 
     /**
      *  @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadAnexo $obj
+     * @param \App\Models\OportunidadAnexo $oportunidadan
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, OportunidadAnexo $obj)
+    public function update(Request $request, $oportunidadan)
     {
         try {
             DB::beginTransaction();
-            $data = parent::update($request, $obj);
+            $data = OportunidadAnexo::findOrFail($oportunidadan);
+            $data->update($request->validated());
             DB::commit();
 
             return Response::json([
