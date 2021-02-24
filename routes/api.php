@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,14 +23,31 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 */
 
 Route::get('/', function () {
-    return "Hola";
+    return "Bienvenido";
 });
+
+Route::get('reset-config', function (){
+    Artisan::call('route:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('config:cache');
+    Artisan::call('optimize');
+
+    return Response::json(
+        [
+            'status' => true,
+            'message' => "Configuración reseteada.."
+        ],
+        200
+    );
+});
+
 
 Route::group([
     'prefix' => 'aoh/auth'
 ], function () {
     //Route::post('login',  \App\Http\Controllers\Auth\AuthController::class, 'login');
-    Route::apiResource('register', \App\Http\Controllers\Auth\RegisterController::class);
+    //Route::apiResource('register', \App\Http\Controllers\Api\Auth\RegisterController::class);
 
     Route::group([
       'middleware' => 'auth:api'
@@ -41,7 +60,21 @@ Route::group([
 Route::group([
     'prefix' => 'aoh'
 ], function () {
-    Route::apiResource("oportunidadh", \App\Http\Controllers\OportunidadHController::class);
+
+    Route::apiResource("oportunidada", \App\Http\Controllers\OportunidadActividadController::class);
+    Route::apiResource("oportunidadan", \App\Http\Controllers\OportunidadAnexoController::class);
+    Route::apiResource("oportunidadc", \App\Http\Controllers\OportunidadCompetidorController::class);
+    Route::apiResource("oportunidade", \App\Http\Controllers\OportunidadEtapaController::class);
+    Route::apiResource("oportunidadg", \App\Http\Controllers\OportunidadGeneralController::class);
+    Route::apiResource("oportunidadh", \App\Http\Controllers\OportunidadHeaderController::class);
+    Route::apiResource("oportunidadp", \App\Http\Controllers\OportunidadPotencialController::class);
+    Route::apiResource("oportunidads", \App\Http\Controllers\OportunidadSocioNegocioController::class);
+    Route::apiResource("personacontacto", \App\Http\Controllers\PersonaContactoController::class);
+
+    Route::apiResource("sociod", \App\Http\Controllers\SocioDireccionController::class);
+    Route::apiResource("sociog", \App\Http\Controllers\SocioGeneralController::class);
+    Route::apiResource("socioh", \App\Http\Controllers\SocioHeaderController::class);
+    Route::apiResource("sociopc", \App\Http\Controllers\SocioPersonaContactoController::class);
 
     Route::group([
       'middleware' => 'auth:api'

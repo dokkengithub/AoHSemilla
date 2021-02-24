@@ -3,6 +3,8 @@
 /public/storage
 /storage/*.key
 /vendor
+/draft.yml
+/.blueprint
 .env
 .env.backup
 .phpunit.result.cache

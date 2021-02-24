@@ -2,10 +2,14 @@
 
 namespace App\Exceptions;
 
+use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -66,6 +70,37 @@ class Handler extends ExceptionHandler
                         ]
                     ]
                 ], 401);
+            }else{
+                if($e instanceOf ValidationException) {
+                    return response()->json([
+                            'status'    =>  false,
+                            'message' => 'La petición no supera la validación de datos.',
+                            'errors'    =>  $e->errors(),
+                        ],
+                        400  //HTTP 400 Bad request
+                        //422  //HTTP 422 Unprocessable Entity
+                    );
+                }else{
+                    if($e instanceOf AuthorizationException) {
+                        return response()->json([
+                                'status'    =>  false,
+                                'message' => 'No tiene permisos para realizar la acción.',
+                                'errors'    =>  $e,
+                            ],
+                            403  //HTTP 403 Forbidden
+                        );
+                    }else{
+                        if($e instanceOf HttpException) {
+                            return response()->json([
+                                    'status'    =>  false,
+                                    'message' => 'Página no encontrada.',
+                                    'errors'    =>  $e,
+                                ],
+                                404  //HTTP 404 Not found
+                            );
+                        }
+                    }
+                }
             }
         }
 
