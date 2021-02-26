@@ -6,63 +6,91 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SocioGeneralStoreRequest;
 use App\Http\Requests\Api\SocioGeneralUpdateRequest;
 use App\Models\SocioGeneral;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class SocioGeneralController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        $socioGenerals = SocioGeneral::all();
-
-        return $socioGenerals;
+        //$this->middleware('auth');
+        $this->model = SocioGeneral::class;
     }
 
-    /**
-     * @param \App\Http\Requests\Api\SocioGeneralStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(SocioGeneralStoreRequest $request)
     {
-        $socioGeneral = SocioGeneral::create($request->validated());
+        try {
+            $data = parent::_store($request->validated());
 
-        return $socioGeneral;
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\SocioGeneral $socioGeneral
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, SocioGeneral $socioGeneral)
+    public function show($id)
     {
-        return $socioGeneral;
+        $data = parent::_show($id);
+
+        return Response::json([
+            'status' => true,
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * @param \App\Http\Requests\Api\SocioGeneralUpdateRequest $request
-     * @param \App\Models\SocioGeneral $socioGeneral
-     * @return \Illuminate\Http\Response
-     */
-    public function update(SocioGeneralUpdateRequest $request, SocioGeneral $socioGeneral)
+    public function update(SocioGeneralUpdateRequest $request, $id)
     {
-        $socioGeneral->update($request->validated());
+        try {
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
-        return $socioGeneral;
+            return Response::json([
+                    'status' => $status,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\SocioGeneral $socioGeneral
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, SocioGeneral $socioGeneral)
+    public function destroy(Request $request, $id)
     {
-        $socioGeneral->delete();
+        try{
+            parent::_destroy($id);
 
-        return $socioGeneral;
+            return Response::json([
+                    'status' => true,
+                    'message' => 'El recurso se ha eliminado.'
+                ],
+                200  //HTTP 204 No Content
+            );
+        }catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+
+        $paginate = parent::_search($request);
+
+        $paginate = $paginate->paginate($perPage);
+
+        return Response::json($paginate, 200);
     }
 }

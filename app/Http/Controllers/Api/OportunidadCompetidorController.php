@@ -6,63 +6,91 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\OportunidadCompetidorStoreRequest;
 use App\Http\Requests\Api\OportunidadCompetidorUpdateRequest;
 use App\Models\OportunidadCompetidor;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class OportunidadCompetidorController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        $oportunidadCompetidors = OportunidadCompetidor::all();
-
-        return $oportunidadCompetidors;
+        //$this->middleware('auth');
+        $this->model = OportunidadCompetidor::class;
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadCompetidorStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(OportunidadCompetidorStoreRequest $request)
     {
-        $oportunidadCompetidor = OportunidadCompetidor::create($request->validated());
+        try {
+            $data = parent::_store($request->validated());
 
-        return $oportunidadCompetidor;
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadCompetidor $oportunidadCompetidor
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, OportunidadCompetidor $oportunidadCompetidor)
+    public function show($id)
     {
-        return $OportunidadCompetidor;
+        $data = parent::_show($id);
+
+        return Response::json([
+            'status' => true,
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadCompetidorUpdateRequest $request
-     * @param \App\Models\OportunidadCompetidor $oportunidadCompetidor
-     * @return \Illuminate\Http\Response
-     */
-    public function update(OportunidadCompetidorUpdateRequest $request, OportunidadCompetidor $oportunidadCompetidor)
+    public function update(OportunidadCompetidorUpdateRequest $request, $id)
     {
-        $oportunidadCompetidor->update($request->validated());
+        try {
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
-        return $oportunidadCompetidor;
+            return Response::json([
+                    'status' => $status,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadCompetidor $oportunidadCompetidor
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, OportunidadCompetidor $oportunidadCompetidor)
+    public function destroy(Request $request, $id)
     {
-        $oportunidadCompetidor->delete();
+        try{
+            parent::_destroy($id);
 
-        return $oportunidadCompetidor;
+            return Response::json([
+                    'status' => true,
+                    'message' => 'El recurso se ha eliminado.'
+                ],
+                200  //HTTP 204 No Content
+            );
+        }catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+
+        $paginate = parent::_search($request);
+
+        $paginate = $paginate->paginate($perPage);
+
+        return Response::json($paginate, 200);
     }
 }

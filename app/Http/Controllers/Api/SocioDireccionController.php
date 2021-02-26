@@ -6,63 +6,91 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SocioDireccionStoreRequest;
 use App\Http\Requests\Api\SocioDireccionUpdateRequest;
 use App\Models\SocioDireccion;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class SocioDireccionController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        $socioDireccions = SocioDireccion::all();
-
-        return $socioDireccions;
+        //$this->middleware('auth');
+        $this->model = SocioDireccion::class;
     }
 
-    /**
-     * @param \App\Http\Requests\Api\SocioDireccionStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(SocioDireccionStoreRequest $request)
     {
-        $socioDireccion = SocioDireccion::create($request->validated());
+        try {
+            $data = parent::_store($request->validated());
 
-        return $socioDireccion;
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\SocioDireccion $socioDireccion
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, SocioDireccion $socioDireccion)
+    public function show($id)
     {
-        return $socioDireccion;
+        $data = parent::_show($id);
+
+        return Response::json([
+            'status' => true,
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * @param \App\Http\Requests\Api\SocioDireccionUpdateRequest $request
-     * @param \App\Models\SocioDireccion $socioDireccion
-     * @return \Illuminate\Http\Response
-     */
-    public function update(SocioDireccionUpdateRequest $request, SocioDireccion $socioDireccion)
+    public function update(SocioDireccionUpdateRequest $request, $id)
     {
-        $socioDireccion->update($request->validated());
+        try {
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
-        return $socioDireccion;
+            return Response::json([
+                    'status' => $status,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\SocioDireccion $socioDireccion
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, SocioDireccion $socioDireccion)
+    public function destroy(Request $request, $id)
     {
-        $socioDireccion->delete();
+        try{
+            parent::_destroy($id);
 
-        return $socioDireccion;
+            return Response::json([
+                    'status' => true,
+                    'message' => 'El recurso se ha eliminado.'
+                ],
+                200  //HTTP 204 No Content
+            );
+        }catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+
+        $paginate = parent::_search($request);
+
+        $paginate = $paginate->paginate($perPage);
+
+        return Response::json($paginate, 200);
     }
 }

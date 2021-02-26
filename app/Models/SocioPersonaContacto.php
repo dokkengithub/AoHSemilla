@@ -26,9 +26,9 @@ class SocioPersonaContacto extends Model
         'id' => 'integer',
         'socio_header_id' => 'integer',
         'persona_contacto_id' => 'integer',
-        'fecha_creacion' => 'date',
+        'fecha_creacion' => 'date:d-m-Y',
         'user_creacion' => 'integer',
-        'fecha_modificacion' => 'date',
+        'fecha_modificacion' => 'date:d-m-Y',
         'user_modificacion' => 'integer',
     ];
 

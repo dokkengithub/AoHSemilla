@@ -6,63 +6,91 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\OportunidadEtapaStoreRequest;
 use App\Http\Requests\Api\OportunidadEtapaUpdateRequest;
 use App\Models\OportunidadEtapa;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class OportunidadEtapaController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        $oportunidadEtapas = OportunidadEtapa::all();
-
-        return $oportunidadEtapas;
+        //$this->middleware('auth');
+        $this->model = OportunidadEtapa::class;
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadEtapaStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(OportunidadEtapaStoreRequest $request)
     {
-        $oportunidadEtapa = OportunidadEtapa::create($request->validated());
+        try {
+            $data = parent::_store($request->validated());
 
-        return $oportunidadEtapa;
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadEtapa $oportunidadEtapa
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, OportunidadEtapa $oportunidadEtapa)
+    public function show($id)
     {
-        return $oportunidadEtapa;
+        $data = parent::_show($id);
+
+        return Response::json([
+            'status' => true,
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadEtapaUpdateRequest $request
-     * @param \App\Models\OportunidadEtapa $oportunidadEtapa
-     * @return \Illuminate\Http\Response
-     */
-    public function update(OportunidadEtapaUpdateRequest $request, OportunidadEtapa $oportunidadEtapa)
+    public function update(OportunidadEtapaUpdateRequest $request, $id)
     {
-        $oportunidadEtapa->update($request->validated());
+        try {
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
-        return $oportunidadEtapa;
+            return Response::json([
+                    'status' => $status,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadEtapa $oportunidadEtapa
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, OportunidadEtapa $oportunidadEtapa)
+    public function destroy(Request $request, $id)
     {
-        $oportunidadEtapa->delete();
+        try{
+            parent::_destroy($id);
 
-        return $oportunidadEtapa;
+            return Response::json([
+                    'status' => true,
+                    'message' => 'El recurso se ha eliminado.'
+                ],
+                200  //HTTP 204 No Content
+            );
+        }catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+
+        $paginate = parent::_search($request);
+
+        $paginate = $paginate->paginate($perPage);
+
+        return Response::json($paginate, 200);
     }
 }

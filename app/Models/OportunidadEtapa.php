@@ -25,8 +25,8 @@ class OportunidadEtapa extends Model
     protected $casts = [
         'id' => 'integer',
         'oportunidad_header_id' => 'integer',
-        'fecha_inicio' => 'datetime',
-        'fecha_cierre' => 'datetime',
+        'fecha_inicio' => 'datetime:d-m-Y H:i',
+        'fecha_cierre' => 'datetime:d-m-Y H:i',
         'empleado_ventas' => 'integer',
         'etapa' => 'integer',
         'porcentaje' => 'decimal:2',

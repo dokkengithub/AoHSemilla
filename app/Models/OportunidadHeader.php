@@ -44,7 +44,7 @@ class OportunidadHeader extends Model
         return $this->hasMany(OportunidadActividad::class);
     }
 
-    public function oportunidadns(){
+    public function oportunidadans(){
         return $this->hasMany(OportunidadAnexo::class);
     }
 

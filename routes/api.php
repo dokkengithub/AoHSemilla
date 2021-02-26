@@ -61,29 +61,29 @@ Route::group([
     'prefix' => 'aoh'
 ], function () {
 
-    Route::apiResource("oportunidada", \App\Http\Controllers\OportunidadActividadController::class);
+    Route::apiResource("oportunidada", \App\Http\Controllers\Api\OportunidadActividadController::class);
 
-    Route::apiResource("oportunidadan", \App\Http\Controllers\OportunidadAnexoController::class);
+    Route::apiResource("oportunidadan", \App\Http\Controllers\Api\OportunidadAnexoController::class);
 
-    Route::apiResource("oportunidadc", \App\Http\Controllers\OportunidadCompetidorController::class);
+    Route::apiResource("oportunidadc", \App\Http\Controllers\Api\OportunidadCompetidorController::class);
 
-    Route::apiResource("oportunidade", \App\Http\Controllers\OportunidadEtapaController::class);
+    Route::apiResource("oportunidade", \App\Http\Controllers\Api\OportunidadEtapaController::class);
 
-    Route::apiResource("oportunidadg", \App\Http\Controllers\OportunidadGeneralController::class);
+    Route::apiResource("oportunidadg", \App\Http\Controllers\Api\OportunidadGeneralController::class);
 
-    Route::get("oportunidadh/search", [ \App\Http\Controllers\OportunidadHeaderController::class, 'search' ]);
-    Route::apiResource("oportunidadh", \App\Http\Controllers\OportunidadHeaderController::class);
+    Route::get("oportunidadh/search", [ \App\Http\Controllers\Api\OportunidadHeaderController::class, 'search' ]);
+    Route::apiResource("oportunidadh", \App\Http\Controllers\Api\OportunidadHeaderController::class);
 
-    Route::apiResource("oportunidadp", \App\Http\Controllers\OportunidadPotencialController::class);
+    Route::apiResource("oportunidadp", \App\Http\Controllers\Api\OportunidadPotencialController::class);
 
-    Route::apiResource("oportunidads", \App\Http\Controllers\OportunidadSocioNegocioController::class);
+    Route::apiResource("oportunidads", \App\Http\Controllers\Api\OportunidadSocioNegocioController::class);
 
-    Route::apiResource("personacontacto", \App\Http\Controllers\PersonaContactoController::class);
+    Route::apiResource("personacontacto", \App\Http\Controllers\Api\PersonaContactoController::class);
 
-    Route::apiResource("sociod", \App\Http\Controllers\SocioDireccionController::class);
-    Route::apiResource("sociog", \App\Http\Controllers\SocioGeneralController::class);
-    Route::apiResource("socioh", \App\Http\Controllers\SocioHeaderController::class);
-    Route::apiResource("sociopc", \App\Http\Controllers\SocioPersonaContactoController::class);
+    Route::apiResource("sociod", \App\Http\Controllers\Api\SocioDireccionController::class);
+    Route::apiResource("sociog", \App\Http\Controllers\Api\SocioGeneralController::class);
+    Route::apiResource("socioh", \App\Http\Controllers\Api\SocioHeaderController::class);
+    Route::apiResource("sociopc", \App\Http\Controllers\Api\SocioPersonaContactoController::class);
 
     Route::group([
       'middleware' => 'auth:api'

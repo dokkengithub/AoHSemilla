@@ -6,63 +6,91 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\OportunidadGeneralStoreRequest;
 use App\Http\Requests\Api\OportunidadGeneralUpdateRequest;
 use App\Models\OportunidadGeneral;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class OportunidadGeneralController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        $oportunidadGenerals = OportunidadGeneral::all();
-
-        return $oportunidadGenerals;
+        //$this->middleware('auth');
+        $this->model = OportunidadGeneral::class;
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadGeneralStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(OportunidadGeneralStoreRequest $request)
     {
-        $oportunidadGeneral = OportunidadGeneral::create($request->validated());
+        try {
+            $data = parent::_store($request->validated());
 
-        return $oportunidadGeneral;
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadGeneral $oportunidadGeneral
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, OportunidadGeneral $oportunidadGeneral)
+    public function show($id)
     {
-        return $oportunidadGeneral;
+        $data = parent::_show($id);
+
+        return Response::json([
+            'status' => true,
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadGeneralUpdateRequest $request
-     * @param \App\Models\OportunidadGeneral $oportunidadGeneral
-     * @return \Illuminate\Http\Response
-     */
-    public function update(OportunidadGeneralUpdateRequest $request, OportunidadGeneral $oportunidadGeneral)
+    public function update(OportunidadGeneralUpdateRequest $request, $id)
     {
-        $oportunidadGeneral->update($request->validated());
+        try {
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
-        return $oportunidadGeneral;
+            return Response::json([
+                    'status' => $status,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadGeneral $oportunidadGeneral
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, OportunidadGeneral $oportunidadGeneral)
+    public function destroy(Request $request, $id)
     {
-        $oportunidadGeneral->delete();
+        try{
+            parent::_destroy($id);
 
-        return $oportunidadGeneral;
+            return Response::json([
+                    'status' => true,
+                    'message' => 'El recurso se ha eliminado.'
+                ],
+                200  //HTTP 204 No Content
+            );
+        }catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+
+        $paginate = parent::_search($request);
+
+        $paginate = $paginate->paginate($perPage);
+
+        return Response::json($paginate, 200);
     }
 }

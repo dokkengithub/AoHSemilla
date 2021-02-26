@@ -6,63 +6,91 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\OportunidadAnexoStoreRequest;
 use App\Http\Requests\Api\OportunidadAnexoUpdateRequest;
 use App\Models\OportunidadAnexo;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class OportunidadAnexoController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        $oportunidadAnexos = OportunidadAnexo::all();
-
-        return $oportunidadAnexos;
+        //$this->middleware('auth');
+        $this->model = OportunidadAnexo::class;
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadAnexoStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(OportunidadAnexoStoreRequest $request)
     {
-        $oportunidadAnexo = OportunidadAnexo::create($request->validated());
+        try {
+            $data = parent::_store($request->validated());
 
-        return $oportunidadAnexo;
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadAnexo $oportunidadAnexo
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, OportunidadAnexo $oportunidadAnexo)
+    public function show($id)
     {
-        return $oportunidadAnexo;
+        $data = parent::_show($id);
+
+        return Response::json([
+            'status' => true,
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * @param \App\Http\Requests\Api\OportunidadAnexoUpdateRequest $request
-     * @param \App\Models\OportunidadAnexo $oportunidadAnexo
-     * @return \Illuminate\Http\Response
-     */
-    public function update(OportunidadAnexoUpdateRequest $request, OportunidadAnexo $oportunidadAnexo)
+    public function update(OportunidadAnexoUpdateRequest $request, $id)
     {
-        $oportunidadAnexo->update($request->validated());
+        try {
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
-        return $oportunidadAnexo;
+            return Response::json([
+                    'status' => $status,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OportunidadAnexo $oportunidadAnexo
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, OportunidadAnexo $oportunidadAnexo)
+    public function destroy(Request $request, $id)
     {
-        $oportunidadAnexo->delete();
+        try{
+            parent::_destroy($id);
 
-        return $oportunidadAnexo;
+            return Response::json([
+                    'status' => true,
+                    'message' => 'El recurso se ha eliminado.'
+                ],
+                200  //HTTP 204 No Content
+            );
+        }catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+
+        $paginate = parent::_search($request);
+
+        $paginate = $paginate->paginate($perPage);
+
+        return Response::json($paginate, 200);
     }
 }

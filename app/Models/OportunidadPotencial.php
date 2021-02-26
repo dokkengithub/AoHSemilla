@@ -27,7 +27,7 @@ class OportunidadPotencial extends Model
         'oportunidad_header_id' => 'integer',
         'cierre_planificado_en' => 'integer',
         'cierre_planificado_tipo' => 'integer',
-        'fecha_cierre_prevista' => 'date',
+        'fecha_cierre_prevista' => 'date:d-m-Y',
         'monto_potencial' => 'decimal:2',
         'monto_ponderado' => 'decimal:2',
         'porc_ganancia_bruta' => 'decimal:2',

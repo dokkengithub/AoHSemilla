@@ -6,63 +6,91 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SocioPersonaContactoStoreRequest;
 use App\Http\Requests\Api\SocioPersonaContactoUpdateRequest;
 use App\Models\SocioPersonaContacto;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class SocioPersonaContactoController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct()
     {
-        $socioPersonaContactos = SocioPersonaContacto::all();
-
-        return $socioPersonaContactos;
+        //$this->middleware('auth');
+        $this->model = SocioPersonaContacto::class;
     }
 
-    /**
-     * @param \App\Http\Requests\Api\SocioPersonaContactoStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(SocioPersonaContactoStoreRequest $request)
     {
-        $socioPersonaContacto = SocioPersonaContacto::create($request->validated());
+        try {
+            $data = parent::_store($request->validated());
 
-        return $socioPersonaContacto;
+            return Response::json([
+                    'status' => true,
+                    'data' =>  $data,
+                    'message' => 'El recurso se ha creado.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\SocioPersonaContacto $socioPersonaContacto
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, SocioPersonaContacto $socioPersonaContacto)
+    public function show($id)
     {
-        return $socioPersonaContacto;
+        $data = parent::_show($id);
+
+        return Response::json([
+            'status' => true,
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * @param \App\Http\Requests\Api\SocioPersonaContactoUpdateRequest $request
-     * @param \App\Models\SocioPersonaContacto $socioPersonaContacto
-     * @return \Illuminate\Http\Response
-     */
-    public function update(SocioPersonaContactoUpdateRequest $request, SocioPersonaContacto $socioPersonaContacto)
+    public function update(SocioPersonaContactoUpdateRequest $request, $id)
     {
-        $socioPersonaContacto->update($request->validated());
+        try {
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
-        return $socioPersonaContacto;
+            return Response::json([
+                    'status' => $status,
+                    'data' =>  $data,
+                    'message' => 'El recurso se actualizó.'
+                ],
+                201 //HTTP 201 Object created
+            );
+        } catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\SocioPersonaContacto $socioPersonaContacto
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, SocioPersonaContacto $socioPersonaContacto)
+    public function destroy(Request $request, $id)
     {
-        $socioPersonaContacto->delete();
+        try{
+            parent::_destroy($id);
 
-        return $socioPersonaContacto;
+            return Response::json([
+                    'status' => true,
+                    'message' => 'El recurso se ha eliminado.'
+                ],
+                200  //HTTP 204 No Content
+            );
+        }catch (QueryException $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = ( $request->has('per_page') ? intval($request->per_page) : 10 );
+
+        $paginate = parent::_search($request);
+
+        $paginate = $paginate->paginate($perPage);
+
+        return Response::json($paginate, 200);
     }
 }
