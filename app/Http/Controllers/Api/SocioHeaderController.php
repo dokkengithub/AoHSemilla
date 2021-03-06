@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
 
-class SocioHeaderController extends Controller
+class SocioHeaderController extends ApiBasicController
 {
     public function __construct()
     {

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class OportunidadHeaderController extends Controller
+class OportunidadHeaderController extends ApiBasicController
 {
     public function __construct()
     {

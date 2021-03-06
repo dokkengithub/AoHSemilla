@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
 
-class SocioPersonaContactoController extends Controller
+class SocioPersonaContactoController extends ApiBasicController
 {
     public function __construct()
     {

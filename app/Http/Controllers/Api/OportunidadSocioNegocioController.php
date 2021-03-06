@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
 
-class OportunidadSocioNegocioController extends Controller
+class OportunidadSocioNegocioController extends ApiBasicController
 {
     public function __construct()
     {

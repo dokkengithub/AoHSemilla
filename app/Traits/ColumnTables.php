@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\DB;
  */
 trait ColumnTables {
 
-    public function getDateFormat() {
+    /*public function getDateFormat() {
         return "d-m-Y H:i:s.v";
-    }
+    }*/
 
     public function getColumnsTable(){
         $columnsTable = DB::table('sysobjects')

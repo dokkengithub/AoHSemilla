@@ -19,9 +19,9 @@ class CreateOportunidadActividadsTable extends Migration
             $table->id();
             $table->foreignId('oportunidad_header_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('fecha_inicio')->nullable();
-            $table->time('hora_inicio', 7)->nullable();
+            $table->time('hora_inicio')->nullable();
             $table->date('fecha_fin')->nullable();
-            $table->time('hora_fin', 7)->nullable();
+            $table->time('hora_fin')->nullable();
             $table->unsignedBigInteger('asignado_a')->nullable();
             $table->unsignedBigInteger('asignado_por')->nullable();
             $table->longText('comentario')->nullable();

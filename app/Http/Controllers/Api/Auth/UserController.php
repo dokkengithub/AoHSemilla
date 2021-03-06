@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api\Auth;
 
+use App\Http\Controllers\Api\ApiBasicController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\UserStoreRequest;
+use App\Http\Requests\Api\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -11,31 +14,20 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
-class RegisterController extends Controller
+class UserController extends ApiBasicController
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
-        $this->middleware('guest')->except('logout');
-        $this->modelClass = User::class;
+        //$this->middleware('auth:api'); //->except('index');
+        $this->model = User::class;
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
     protected function validator(array $data)
     {
         $validator = Validator::make($data, [
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,' . (request()->get('id')?:null),
-                'password' => 'required|string|min:6|confirmed',
+                'email' => 'required|string|email|max:255|unique:users,email,' . request()->get('id'),
+                'password' => 'required|string|min:6|confirmed',  //'required|string|min:6|confirmed',
             ],[
                 'name.required' => 'El nombre de usuario es requerido.',
                 'name.string' => 'El nombre de usuario debe ser una cadena de texto.',
@@ -63,131 +55,66 @@ class RegisterController extends Controller
         }
     }
 
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function store(UserStoreRequest $request)
     {
-        $data = $this->modelClass::all();
-
-        return Response::json([
-            'status' => true,
-            'data' => $data
-        ], 200);  //HTTP 201 Ok
-    }
-
-
-
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $data = $request->all();
-        $this->validator($data);
-
+        $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
 
         try {
-            DB::beginTransaction();
-            $obj = $this->modelClass::create($data);
-            DB::commit();
+            $data = parent::_store($data);
 
             return Response::json([
                     'status' => true,
-                    //'token'     =>  compact('token'),
-                    'data' =>  $obj,
+                    'data' =>  $data,
                     'message' => 'El recurso se ha creado.'
                 ],
                 201 //HTTP 201 Object created
             );
         } catch (QueryException $e) {
-            DB::rollback();
             throw $e;
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        $obj = User::findOrFail($id);
+        $data = parent::_show($id);
 
         return Response::json([
             'status' => true,
-            'data' => $obj
-        ], 200);
+            'data' => $data
+        ], 200); //HTTP 200 Ok
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(UserUpdateRequest $request, $id)
     {
-        $data = $request->all();
-        $this->validator($data);
-
         try {
-            DB::beginTransaction();
-            $obj = $this->modelClass::findOrFail($id);
-            $obj->update($data);
-            DB::commit();
+            $status = parent::_update($request->validated(), $id);
+            $data = parent::_show($id);
 
             return Response::json([
-                    'status' => true,
-                    'data' =>  $obj,
+                    'status' => $status,
+                    'data' =>  $data,
                     'message' => 'El recurso se actualizó.'
                 ],
                 201 //HTTP 201 Object created
             );
         } catch (QueryException $e) {
-            DB::rollback();
             throw $e;
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         try{
-            DB::beginTransaction();
-
-            $obj = $this->modelClass::findOrFail($id);
-            //$obj->activo = false;
-            // $obj->save();  //$data->update(['activo' => false]);
-            //$obj->delete();
-
-            DB::commit();
+            parent::_destroy($id);
 
             return Response::json([
                     'status' => true,
-                    'data' =>  $obj,
                     'message' => 'El recurso se ha eliminado.'
                 ],
-                200
+                200  //HTTP 204 No Content
             );
         }catch (QueryException $e) {
-            DB::rollback();
             throw $e;
         }
     }

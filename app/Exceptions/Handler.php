@@ -51,41 +51,35 @@ class Handler extends ExceptionHandler
         if($e instanceOf ModelNotFoundException) {
             return response()->json([
                 'status' => false,
-                'errors' => [
-                    [
-                        'code' => 404,
-                        'message' => 'No se encuentra el recurso solicitado.'
-                    ]
-                ]
+                'code' => 404,
+                'message' => 'No se encuentra el recurso solicitado.'
             ], 404);
         }
         else{
             if($e instanceOf AuthenticationException) {
                 return response()->json([
-                    'status' => false,
-                    'errors' => [
-                        [
-                            'code' => 401,
-                            'message' => 'Credenciales inválidas',
-                        ]
-                    ]
-                ], 401);
+                        'status' => false,
+                        'code' => 401,
+                        'message' => 'Credenciales inválidas.'
+                    ], 401
+                );
             }else{
                 if($e instanceOf ValidationException) {
                     return response()->json([
                             'status'    =>  false,
+                            'code' => 422,
                             'message' => 'La petición no supera la validación de datos.',
-                            'errors'    =>  $e->errors(),
+                            'errors'    =>  $e->errors()
                         ],
-                        400  //HTTP 400 Bad request
-                        //422  //HTTP 422 Unprocessable Entity
+                        //400  //HTTP 400 Bad request
+                        422  //HTTP 422 Unprocessable Entity
                     );
                 }else{
                     if($e instanceOf AuthorizationException) {
                         return response()->json([
                                 'status'    =>  false,
-                                'message' => 'No tiene permisos para realizar la acción.',
-                                'errors'    =>  $e,
+                                'code' => 403,
+                                'message' => 'No tiene permisos para realizar la acción'
                             ],
                             403  //HTTP 403 Forbidden
                         );
@@ -93,8 +87,8 @@ class Handler extends ExceptionHandler
                         if($e instanceOf HttpException) {
                             return response()->json([
                                     'status'    =>  false,
-                                    'message' => 'Página no encontrada.',
-                                    'errors'    =>  $e,
+                                    'code' => 404,
+                                    'message' => 'Página no encontrada'
                                 ],
                                 404  //HTTP 404 Not found
                             );
